@@ -1,18 +1,18 @@
 document.getElementById("parseButton").onclick=function()
 {
-	var p = parse(document.getElementById("parseInput").value);
-	console.log(p);
-	findCanonicalCovers(p);
+	var relationList = parse(document.getElementById("parseInput").value);
+	//console.log(relationList);
+	findCanonicalCovers(relationList);
 }
-function findCanonicalCovers(p)
+function findCanonicalCovers(relationList)
 {
 	document.getElementById("stepsList").value = "";
 	var can;
-	for(var i=0;i<p.relations.length;i++)
+	for(var i=0;i<relationList.length;i++)
 	{
-		can = canonicalCover(p.relations[i].fd,p.relations[i].steps);
+		can = canonicalCover(relationList[i].dependencyList,p.relations[i].steps);
 		populate(p.relations[i].name,p.relations[i].steps);
-		console.log(can);
+		//console.log(can);
 	}
 	return null;
 }
@@ -25,23 +25,24 @@ function populate(name,steps){
 	for (var i=0;i<steps.length;i++)
 	{
 		document.getElementById("stepsList").value += steps[i]+ "\n";
-		console.log(steps[i]);
+		//console.log(steps[i]);
 	}
 	return null;
 		
 }
-function canonicalCover(fd,steps)
+function canonicalCover(dependencyList,steps)
 {
 	var can = [];
-	for (var i=0;i<fd.length;i++)
+	for (var i=0;i<dependencyList.length;i++)
 	{
-		if(fd[i].right.length>1)//Right side needs to be decomposed
+		var dependency = dependencyList[i];
+		if(dependency.rhs.length>1)//Right side needs to be decomposed
 		{
-			var str = "\t"+ fd[i].left+"->"+fd[i].right+" is decomposed into\n";
-			for (var itm =0; itm<fd[i].right.length;itm++)
+			var str = "\t"+ dependency.lhs+"->"+dependency.rhs+" is decomposed into\n";
+			for (var itm =0; itm<dependency.rhs.length;itm++)
 			{
-				can.push({"left":cloneArray(fd[i].left),"right":[fd[i].right[itm]]});
-				str += "\t\t"+fd[i].left + "->"+fd[i].right[itm]+"\n";
+				can.push({"left":cloneArray(dependency.lhs),"right":[dependency.rhs[itm]]});
+				str += "\t\t"+dependency.lhs + "->"+dependency.rhs[itm]+"\n";
 			}
 			steps.push(str);
 		}

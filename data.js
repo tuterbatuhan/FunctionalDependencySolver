@@ -11,10 +11,10 @@ function parse(text)
 			var pEnd = line.indexOf(")");	//End index of paranthesis
 			var name = line.substring(0,pStart);
 			var attributeList = line.substring(pStart+1,pEnd).split(/ *, */);
-			relation = new Relation (name,attribute,[]); //{'name':name,'attr':attributes,'fd':[],"steps":[]};
+			relation = new Relation (name,attributeList,[]); //{'name':name,'attr':attributes,'fd':[],"steps":[]};
 			relationList.push(relation);
 		}
-		else if(line.contains("->"))//Indicates a dependency [attr1,...]->[attr1,...]
+		else if(line.indexOf("->") !=-1)//Indicates a dependency [attr1,...]->[attr1,...]
 		{
 			var dLoc = line.indexOf("-");
 			var left = line.substring(0,dLoc).split(/ *, */);
@@ -31,7 +31,7 @@ function Dependency(lhs,rhs)
 	
 	this.toString = function()
 	{
-		return lhs.toString() + " --> " + rhs.toString();		
+		return lhs.toString() + " -> " + rhs.toString();		
 	}
 }
 
