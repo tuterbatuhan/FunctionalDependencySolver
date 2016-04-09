@@ -17,18 +17,22 @@ function Dependency(lhs,rhs)
 Array.prototype.equals = function(that)
 {
 	if (this.length != that.length)
-		return;
+		return false;
 	
 	var map = {};
 	
 	for (var i = 0; i < this.length ; i++)
-		map[this[i]] = 1;
+		if (map[this[i]] == undefined)
+			map[this[i]] = 1;
+		else
+			map[this[i]] = map[this[i]] + 1;
 	
 	for (var i = 0; i < that.length ; i++)
-		if (map[that[i]] == 1)
-			map[that[i]] = 0;
-		else
+		if (map[that[i]] == undefined)
 			return false;
+		else 
+			map[that[i]] = map[that[i]] - 1;
+
 	
 	Object.keys(map).forEach(function(key){
 		if (map[key] != 0)
@@ -37,11 +41,22 @@ Array.prototype.equals = function(that)
 	return true;
 }
 
-Array.prototype.unique = function()
+function removeDupp(dependencyList,historySection)
 {
-	var map = {};
-	this.forEach(function(e){map[e.toString()]=e;});
-	return Object.keys(map).map(function(e){return map[e];});
+	var uniqueItems = {};
+	
+	for (var i = 0 ; i < dependencyList.length ; i++)
+	{
+		uniqueItems[dependencyList[i].toString()] = dependencyList[i];
+	}
+	
+	var keys = Object.keys(uniqueItems);
+	var result = [];
+	
+	for (var i = 0 ; i < keys.length ; i++)
+		result.push(uniqueItems[keys[i]]);
+	
+	return result;
 }
 
 function Relation(name,attributes,dependencyList)
