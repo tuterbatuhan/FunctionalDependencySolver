@@ -16,6 +16,7 @@ function findCanonicalCovers(relationList)
 		var innerSec = sec.createSection(1);
 		relationList[i].dependencyList = decompositionRule(relationList[i].dependencyList,innerSec);
 		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
+		relationList[i].dependencyList = reduce(relationList[i].dependencyList,innerSec);
 		innerSec.add("\nLast");
 		innerSec.add(relationList[i].dependencyList.join("\n"));
 	}

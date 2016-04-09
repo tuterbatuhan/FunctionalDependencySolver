@@ -53,3 +53,49 @@ function removeDupp(dependencyList,section)
 	}
 	return result;
 }
+function reduce(dependencyList,section)
+{
+	var temp=[];
+	for (var i=0;i<dependencyList.length;i++)
+	{
+		var dependency = dependencyList[i];	
+		if(dependency.lhs.length!=1)
+		{
+			var reduced = helper(dependency,dependencyList);
+			if(reduced!=null)
+			{
+				temp.push(new Dependency(reduced.lhs,dependency.rhs));
+			}
+			else
+			{
+				temp.push(dependency);
+			}
+		}
+		else
+		{
+			temp.push(dependency);
+		}
+	}
+	return temp;
+}
+function helper(dependency,dependencyList)
+{
+	for (var k=0;k<dependency.lhs.length;k++)
+	{
+		var temp = [];
+		for (var i=0;k<k<dependency.lhs.length;i++)
+		{
+			if(i!=k)
+			{
+				temp.push(dependency.lhs[k]);
+			}
+		}
+		var dep = new Dependency(temp,dependency.lhs[k]);
+		if(implies(dependencyList,dep))
+		{
+			return dep;
+		}
+	}
+	return null;
+		
+}
