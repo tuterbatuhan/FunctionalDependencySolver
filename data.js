@@ -3,10 +3,39 @@ function Dependency(lhs,rhs)
 	this.lhs = lhs;
 	this.rhs = rhs;
 	
+	
 	this.toString = function()
 	{
 		return lhs.toString() + " --> " + rhs.toString();		
 	}
+	
+	this.equals = function(that)
+	{
+		return this.lhs.equals(that.lhs) && this.rhs.equals(that.rhs);
+	}
+}
+
+Array.prototype.equals = function(that)
+{
+	if (this.length != that.length)
+		return;
+	
+	var map = {};
+	
+	for (var i = 0; i < this.length ; i++)
+		map[this[i]] = 1;
+	
+	for (var i = 0; i < that.length ; i++)
+		if (map[that[i]] == 1)
+			map[that[i]] = 0;
+		else
+			return false;
+	
+	Object.keys(map).forEach(function(key){
+		if (map[key] != 0)
+			return false;
+	});
+	return true;
 }
 
 function Relation(name,attributes,dependencyList)
