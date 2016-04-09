@@ -58,7 +58,7 @@ function parse(text)
 	result.relations = [];
 	for (var i = 0; i < lines.length; i++) {
 		var line = lines[i];
-		if(line.endsWith(":"))
+		if(line.endsWith(":"))//Indicates that a relation
 		{
 			var pStart = line.indexOf("(");
 			var pEnd = line.indexOf(")");
@@ -67,7 +67,7 @@ function parse(text)
 			relation = {'name':name,'attr':params,'fd':[],"steps":[]};
 			result.relations.push(relation);
 		}
-		else if(line.contains("->"))
+		else if(line.contains("->"))//Indicates a dependency
 		{
 			var dLoc = line.indexOf("-");
 			var left = line.substring(0,dLoc).split(/ *, */);
