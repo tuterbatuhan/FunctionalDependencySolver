@@ -23,27 +23,33 @@ function decompositionRule(dependencyList,section)
 }
 function removeDupp(dependencyList,section)
 {
-	var uniq = dependencyList.map((name) => {return {count: 1, name: name}}).reduce((a, b) => {a[b.name] = (a[b.name] || 0) + b.count; 
-	return a;}, {});
-
-	var duplicates = Object.keys(uniq).filter((a) => uniq[a] > 1);
-
-	var temp =[];
-	for (var i=0; i<duplicates.length;i++)
+	var uniqueItems = {};
+	var dupplicates = {};
+	for (var i = 0 ; i < dependencyList.length ; i++)
 	{
-		for (var k=0; k<dependencyList.length;k++)
+		if(uniqueItems[dependencyList[i].toString()] != undefined)
+			dupplicates[dependencyList[i].toString()] = dependencyList[i];
+		uniqueItems[dependencyList[i].toString()] = dependencyList[i];
+		
+	}
+	
+	var keys = Object.keys(uniqueItems);
+	var result = [];
+	
+	for (var i = 0 ; i < keys.length ; i++)
+		result.push(uniqueItems[keys[i]]);
+		
+		
+	var key2 = Object.keys(dupplicates);
+	if(key2.length!=0)
+	{
+		var str = "Dupplicates";
+		for (var i = 0 ; i < key2.length ; i++)
 		{
-			if(!dependencyList[k].equals(duplicates[i]))
-				temp.push(dependencyList[k]);
+			str+= "\n\t"+key2[i];
 		}
+		str+="\tare removed";
+		section.add(str);
 	}
-	var str = " Dupplicates :";
-	for (var i=0; i<duplicates.length;i++)
-	{
-		str+=duplicates[i];
-		temp.push(duplicates[i]);
-	}
-	str+="are removed!\n";
-	section.add(str);
-	return temp;
+	return result;
 }

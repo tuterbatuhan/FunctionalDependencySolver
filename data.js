@@ -5,7 +5,7 @@ function Dependency(lhs,rhs)
 	
 	this.toString = function()
 	{
-		return lhs.toString() + " --> " + rhs.toString();		
+		return lhs.toString() + " -> " + rhs.toString();		
 	}
 	
 	this.equals = function(that)
@@ -14,21 +14,25 @@ function Dependency(lhs,rhs)
 	}
 }
 
-Array.prototype.equals = function(a)
+Array.prototype.equals = function(that)
 {
-	if (this.length != a.length)
-		return;
+	if (this.length != that.length)
+		return false;
 	
 	var map = {};
 	
 	for (var i = 0; i < this.length ; i++)
-		map[this[i]] = 1;
-	
-	for (var i = 0; i < a.length ; i++)
-		if (map[a[i]] == 1)
-			map[a[i]] = 0;
+		if (map[this[i]] == undefined)
+			map[this[i]] = 1;
 		else
+			map[this[i]] = map[this[i]] + 1;
+	
+	for (var i = 0; i < that.length ; i++)
+		if (map[that[i]] == undefined)
 			return false;
+		else 
+			map[that[i]] = map[that[i]] - 1;
+
 	
 	Object.keys(map).forEach(function(key){
 		if (map[key] != 0)
@@ -37,12 +41,7 @@ Array.prototype.equals = function(a)
 	return true;
 }
 
-Array.prototype.unique = function()
-{
-	var map = {};
-	this.forEach(function(e){map[e.toString()]=e;});
-	return Object.keys(map).map(function(e){return map[e];});
-}
+
 
 function Relation(name,attributes,dependencyList)
 {
@@ -112,3 +111,4 @@ function HistorySection()
 		return str;
 	}
 }
+

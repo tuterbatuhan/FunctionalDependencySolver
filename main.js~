@@ -13,8 +13,11 @@ function findCanonicalCovers(relationList)
 	{
 		var sec = HISTORY.createSection(0);
 		sec.add("For Relation: "+relationList[i].name);
-		relationList[i].dependencyList = decompositionRule(relationList[i].dependencyList,sec.createSection(1));
-		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,sec.createSection(1));
+		var innerSec = sec.createSection(1);
+		relationList[i].dependencyList = decompositionRule(relationList[i].dependencyList,innerSec);
+		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
+		innerSec.add("\nLast\n");
+		innerSec.add(relationList[i].dependencyList.join("\n"));
 	}
 	return null;
 }
