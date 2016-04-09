@@ -1,8 +1,7 @@
 function Dependency(lhs,rhs)
 {
-	this.lhs = lhs;
-	this.rhs = rhs;
-	
+	this.lhs = lhs.sort();
+	this.rhs = rhs.sort();
 	
 	this.toString = function()
 	{
@@ -36,6 +35,13 @@ Array.prototype.equals = function(that)
 			return false;
 	});
 	return true;
+}
+
+Array.prototype.unique = function()
+{
+	var map = {};
+	this.forEach(function(e){map[e.toString()]=e;});
+	return Object.keys(map).map(function(e){return map[e];});
 }
 
 function Relation(name,attributes,dependencyList)
