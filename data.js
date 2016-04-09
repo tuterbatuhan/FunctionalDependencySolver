@@ -45,7 +45,10 @@ function parse(text)
 
 
 
-
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
 var HISTORY = new HistorySection();
 function HistorySection()
 {
@@ -62,10 +65,9 @@ function HistorySection()
 	
 	this.add = function(text)
 	{
-		i = "";
-		if (this.indentationLevel > 0)
-			i = Array(this.indentationLevel).join("\t");
-		this.historyList.push(i+text);
+		var i = "\t".repeat(this.indentationLevel);
+		
+		this.historyList.push(i+text.replaceAll('\n','\n'+i)+"\n");
 	}
 	
 	this.toString = function()
