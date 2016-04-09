@@ -3,6 +3,7 @@ document.getElementById("parseButton").onclick=function()
 	HISTORY = new HistorySection();
 	var relationList = parse(document.getElementById("parseInput").value);
 	findCanonicalCovers(relationList);
+	updateHistory();
 }
 function findCanonicalCovers(relationList)
 {
@@ -12,8 +13,8 @@ function findCanonicalCovers(relationList)
 	{
 		var sec = HISTORY.createSection(0);
 		sec.add("For Relation: "+relationList[i].name);
-		can = decompositionRule(relationList[i].dependencyList,sec.createSection(1));
-		updateHistory();
+		relationList[i].dependencyList = decompositionRule(relationList[i].dependencyList,sec.createSection(1));
+		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,sec.createSection(1));
 	}
 	return null;
 }

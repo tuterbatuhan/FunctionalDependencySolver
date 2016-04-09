@@ -14,9 +14,9 @@ function Dependency(lhs,rhs)
 	}
 }
 
-Array.prototype.equals = function(that)
+Array.prototype.equals = function(a)
 {
-	if (this.length != that.length)
+	if (this.length != a.length)
 		return;
 	
 	var map = {};
@@ -24,9 +24,9 @@ Array.prototype.equals = function(that)
 	for (var i = 0; i < this.length ; i++)
 		map[this[i]] = 1;
 	
-	for (var i = 0; i < that.length ; i++)
-		if (map[that[i]] == 1)
-			map[that[i]] = 0;
+	for (var i = 0; i < a.length ; i++)
+		if (map[a[i]] == 1)
+			map[a[i]] = 0;
 		else
 			return false;
 	
