@@ -1,3 +1,21 @@
+function Dependency(lhs,rhs)
+{
+	this.lhs = lhs;
+	this.rhs = rhs;
+	
+	this.toString = function()
+	{
+		return lhs.toString() + " --> " + rhs.toString();		
+	}
+}
+
+function Relation(name,attributes,dependencyList)
+{
+	this.attributes = attributes;
+	this.name = name;
+	this.dependencyList = dependencyList;
+}
+
 function parse(text)
 {
 	var lines = text.split(/ *\n */);
@@ -11,10 +29,10 @@ function parse(text)
 			var pEnd = line.indexOf(")");	//End index of paranthesis
 			var name = line.substring(0,pStart);
 			var attributeList = line.substring(pStart+1,pEnd).split(/ *, */);
-			relation = new Relation (name,attributeList,[]); //{'name':name,'attr':attributes,'fd':[],"steps":[]};
+			relation = new Relation(name,attributeList,[]); //{'name':name,'attr':attributes,'fd':[],"steps":[]};
 			relationList.push(relation);
 		}
-		else if(line.indexOf("->") !=-1)//Indicates a dependency [attr1,...]->[attr1,...]
+		else if(line.indexOf("->") != -1)//Indicates a dependency [attr1,...]->[attr1,...]
 		{
 			var dLoc = line.indexOf("-");
 			var left = line.substring(0,dLoc).split(/ *, */);
@@ -24,21 +42,36 @@ function parse(text)
 	}
 	return relationList; 
 }
-function Dependency(lhs,rhs)
+
+
+
+
+var HISTORY = new HistorySection();
+function HistorySection()
 {
-	this.lhs = lhs;
-	this.rhs = rhs;
+	this.indentationLevel = 0;
+	this.historyList = [];
+	
+	this.createSection = function(indent)
+	{
+		var section = new HistorySection();
+		section.indentationLevel = this.indentationLevel + indent;
+		this.historyList.push(section);
+		return section;
+	}
+	
+	this.add = function(text)
+	{
+		i = "";
+		if (this.indentationLevel > 0)
+			i = Array(this.indentationLevel).join("\t");
+		this.historyList.push(i+text);
+	}
 	
 	this.toString = function()
 	{
-		return lhs.toString() + " -> " + rhs.toString();		
+		var str = "";
+		this.historyList.forEach(function(e){str += e.toString()})
+		return str;
 	}
 }
-
-function Relation(name,attributes,dependencyList)
-{
-	this.attributes = attributes;
-	this.name = name;
-	this.dependencyList = dependencyList;
-}
-
