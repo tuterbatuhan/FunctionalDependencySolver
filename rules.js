@@ -83,14 +83,16 @@ function helper(dependency,dependencyList)
 	for (var k=0;k<dependency.lhs.length;k++)
 	{
 		var temp = [];
-		for (var i=0;k<k<dependency.lhs.length;i++)
+		for (var i=0;i<dependency.lhs.length;i++)
 		{
 			if(i!=k)
 			{
 				temp.push(dependency.lhs[k]);
 			}
 		}
-		var dep = new Dependency(temp,dependency.lhs[k]);
+		var temp2 = [];
+		temp2.push(dependency.lhs[k]);
+		var dep = new Dependency(temp,temp2);
 		if(implies(dependencyList,dep))
 		{
 			return dep;

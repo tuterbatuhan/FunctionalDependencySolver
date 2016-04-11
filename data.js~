@@ -14,41 +14,14 @@ function Dependency(lhs,rhs)
 	}
 }
 
-Array.prototype.equals = function(that)
-{
-	if (this.length != that.length)
-		return false;
-	
-	var map = {};
-	
-	for (var i = 0; i < this.length ; i++)
-		if (map[this[i]] == undefined)
-			map[this[i]] = 1;
-		else
-			map[this[i]] = map[this[i]] + 1;
-	
-	for (var i = 0; i < that.length ; i++)
-		if (map[that[i]] == undefined)
-			return false;
-		else 
-			map[that[i]] = map[that[i]] - 1;
-
-	
-	Object.keys(map).forEach(function(key){
-		if (map[key] != 0)
-			return false;
-	});
-	return true;
-}
-
-
-
 function Relation(name,attributes,dependencyList)
 {
 	this.attributes = attributes;
 	this.name = name;
 	this.dependencyList = dependencyList;
 }
+
+
 
 function parse(text)
 {
@@ -78,11 +51,6 @@ function parse(text)
 }
 
 
-
-String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};
 var HISTORY = new HistorySection();
 function HistorySection()
 {
@@ -112,3 +80,140 @@ function HistorySection()
 	}
 }
 
+/**************************************************
+* 
+* Util functions
+* 
+***************************************************/
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
+
+Array.prototype.equals = function(that)
+{
+	if (this.length != that.length)
+		return false;
+	
+	var map = {};
+	
+	for (var i = 0; i < this.length ; i++)
+		if (map[this[i]] == undefined)
+			map[this[i]] = 1;
+		else
+			map[this[i]] = map[this[i]] + 1;
+	
+	for (var i = 0; i < that.length ; i++)
+		if (map[that[i]] == undefined)
+			return false;
+		else 
+			map[that[i]] = map[that[i]] - 1;
+
+	
+	Object.keys(map).forEach(function(key){
+		if (map[key] != 0)
+			return false;
+	});
+	return true;
+}
+
+Array.prototype.isSubset = function(that)
+{
+	var subset = this;
+	var superset = that;
+	
+	if (subset.length > superset.length)
+		return false;
+	
+	var map = {};
+	
+	for (var i = 0; i < superset.length ; i++)
+	{
+		//Means that that character is found
+		map[superset[i]] = 1;
+	}
+	for (var i = 0; i < subset.length ; i++)
+	{
+		// If subset has something that superset does not have
+		if (map[subset[i]] == undefined)
+			return false;
+	}
+	return true;
+}
+
+Array.prototype.difference = function(that)
+{	
+	var map = {};
+	
+	for (var i = 0; i < this.length ; i++)
+	{
+		map[this[i]] = this[i]; // Add items
+	}
+	
+	for (var i = 0; i < that.length ; i++)
+	{
+		map[that[i]] = null; //Remove items
+	}
+	
+	var result = [];
+	
+	Object.keys(map).forEach(function(key){
+		if (map[key] != null)
+			result.push(map[key]);
+	});
+	
+	return result;
+}
+
+Array.prototype.union = function(that)
+{	
+	var map = {};
+	
+	for (var i = 0; i < this.length ; i++)
+	{
+		map[this[i]] = this[i];
+	}
+	
+	for (var i = 0; i < that.length ; i++)
+	{
+		map[that[i]] = that[i];
+	}
+	
+	var result = [];
+	
+	Object.keys(map).forEach(function(key){
+		result.push(map[key]);
+	});
+	
+	return result;
+}
+
+Array.prototype.intersection = function(that)
+{	
+	//Ensures that |this| < |that|
+	//That results |map1| < |map2|
+	if (this.length > that.length)
+		return that.intersection(this);
+	
+	var set1 = {};
+	var set2 = {};
+	for (var i = 0; i < this.length ; i++)
+	{
+		set1[this[i]] = this[i];
+	}
+	
+	for (var i = 0; i < that.length ; i++)
+	{
+		set2[that[i]] = that[i];
+	}
+	
+	var result = [];
+	
+	Object.keys(set1).forEach(function(key){
+		if (set1[key] != undefined && set2[key] != undefined)
+			result.push(set1[key]);
+	});
+	
+	return result;
+}
