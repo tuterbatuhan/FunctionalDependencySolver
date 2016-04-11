@@ -64,7 +64,10 @@ function reduce(dependencyList,section)
 			var reduced = helper(dependency,dependencyList);
 			if(reduced!=null)
 			{
+				var str = dependency.lhs+"->"+dependency.rhs+" is decomposed into\n";
 				temp.push(new Dependency(reduced.lhs,dependency.rhs));
+				str+="\t"+reduced.lhs+"->"+dependency.rhs+"\t since there is "+reduced.lhs+"->"+reduced.rhs;
+				section.add(str);
 			}
 			else
 			{
@@ -76,6 +79,7 @@ function reduce(dependencyList,section)
 			temp.push(dependency);
 		}
 	}
+	
 	return temp;
 }
 function helper(dependency,dependencyList)
@@ -87,7 +91,7 @@ function helper(dependency,dependencyList)
 		{
 			if(i!=k)
 			{
-				temp.push(dependency.lhs[k]);
+				temp.push(dependency.lhs[i]);
 			}
 		}
 		var temp2 = [];
