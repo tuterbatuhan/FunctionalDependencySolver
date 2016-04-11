@@ -1,0 +1,134 @@
+<!--Load required codes from project-->
+<script src="../data.js"></script>
+<script src="../rules.js"></script>
+
+<script>
+	//Correct but stupid implies implementation
+	function c_implies(dependencyList,dependency)
+	{
+		var closure = [].concat(dependency.lhs);
+		var dl = [].concat(dependencyList);
+		var changed = true;
+		
+		//Repeat until no new item added to the closure added
+		while (changed)
+		{
+			changed = false;
+			
+			for (var i = 0; i< dl.length; i++)
+			{
+				//If A->B and closure = {A} 
+				//and B is not an element of closure set(to stop cycles)
+				if (dl[i].lhs.isSubset(closure) 
+					&& !dl[i].rhs.isSubset(closure))
+				{
+					closure = closure.union(dl[i].rhs);
+					changed = true;
+				}
+			}
+		}
+		return dependency.rhs.isSubset(closure);
+	}
+	
+	
+	function test(dependencyList,dependency)
+	{
+		var a = c_implies(dependencyList,dependency);
+		var b = implies(dependencyList,dependency);
+		return a == b;
+	}
+	
+	function testAll(cases)
+	{
+		var count = 0;
+		for (var i = 0 ; i < cases.length ; i++)
+		{
+			try{
+				if (test(cases[i].dependencyList,cases[i].dependency))
+					count++;
+			}
+			catch(err){
+				console.log(err);
+			}
+		}
+		
+		return count;
+	}
+	
+	function getRandomInt(min, max) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+	
+	function getRandom(arr, n) {
+		var items = [].concat(arr);
+		var newItems = [];
+
+		for(var i = 0; i < n; i++) {
+			var idx = Math.floor(Math.random() * items.length);
+			newItems.push(items[idx]);
+			items.splice(idx, 1);
+		}
+		return newItems;
+	}
+	
+	function getRandomDependency(characters,dependencyCharacterSize)
+	{
+		var rhsSize = getRandomInt(1,dependencyCharacterSize);
+		var lhsSize = getRandomInt(1,dependencyCharacterSize);
+		
+		var lhs = [];
+		var rhs = [];
+		
+		lhs = getRandom(characters,lhsSize);
+		rhs = getRandom(characters,rhsSize);
+		
+		return new Dependency(lhs,rhs);
+	}
+	
+	function createRandomTestInstance(characterCount,dependencyListSize,dependencyCharacterSize)
+	{
+		var instance = {
+			dependencyList:[],
+			dependency:null
+		}
+		
+		//Create characters
+		var characters = [];
+		
+		var ch = 0;
+		var prefix = "";
+		for (var i = 0 ; i<characterCount ; i++)
+		{
+			characters.push("" +ch);
+			
+			ch++;
+		}
+		
+		for (var i = 0 ; i < dependencyListSize ; i++)
+		{
+			instance.dependencyList.push(getRandomDependency(characters,dependencyCharacterSize));
+		}
+		
+		instance.dependency = getRandomDependency(characters,dependencyCharacterSize);
+		
+		return instance;
+	}
+	
+	function randomTest(times,characterCount,dependencyListSize,dependencyCharacterSize)
+	{
+		var cases = [];
+		
+		for (var i = 0 ; i < times ; i++)
+			cases.push(createRandomTestInstance(characterCount,dependencyListSize,dependencyCharacterSize));
+	
+		var correct = testAll(cases);
+		
+		console.log("From " + times + " , " + correct + " of them are correct!");
+	}
+	
+	console.log("randomTest(#tests,#attributes,#dependencies in FD,max # items on rhs and lhs in dependency)");
+	console.log("Example usage :");
+	console.log("\tclear();randomTest(1000,50,30,5);");
+	console.log("\t\tThis will test 1000 relations that has 50 attributes and 30 fd's");
+	console.log("\t\t(And each fd has max 5 attributes on lhs and rhs)");
+</script>
