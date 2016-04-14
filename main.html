@@ -3,11 +3,25 @@
 <html>
 	<head>
 		<style>
+			textarea{
+				width: 100%;
+				-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+				-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+				box-sizing: border-box;  
+				resize: none;		
+			}
 			#content{
 				display:flex;
+				justify-content:space-around;
+				align-items:stretch;
+				
 			}
 			#content > div{
-				margin:0px;
+				display:flex;
+				flex-direction:column;
+				align-items:center;
+				justify-content: stretch;
+				width:33%
 			}
 			#button-container{
 				display:flex;
@@ -38,7 +52,7 @@
 		<div id="content">
 			<div>
 				<label>Input:</label>
-				<textarea id="parse-input" rows="30" cols="50">
+				<textarea id="parse-input" cols="50" rows="30">
 R(A,B,C,D):
 A,B->C,D
 B->C
@@ -49,11 +63,11 @@ E->F
 			</div>
 			<div>
 				<label for="output-textarea">Current Relation Set: </label>
-				<textarea id="output-textarea" rows="30" cols="50" readonly></textarea> 
+				<textarea id="output-textarea" cols="50" rows="30"  readonly></textarea> 
 			</div>
 			<div>
 				<label for="history-textarea">Operations: </label>
-				<textarea id="history-textarea" rows="30" cols="50" readonly></textarea> 
+				<textarea id="history-textarea" cols="50" rows="30" readonly></textarea> 
 			</div>
 		</div>
 		 
