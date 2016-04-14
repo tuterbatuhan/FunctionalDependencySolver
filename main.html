@@ -1,37 +1,89 @@
 <!DOCTYPE html>
 <meta charset="UTF-8"> 
 <html>
-<style>
-	#content{
-		display:flex;
-	}
-</style>
-
-Type your Functional Dependencies here, line by line.
-<br>
-<div id="content">
-<textarea id="parseInput" rows="30" cols="50">
+	<head>
+		<style>
+			#content{
+				display:flex;
+			}
+			#content > div{
+				margin:0px;
+			}
+			#button-container{
+				display:flex;
+				justify-content:space-around;
+			}
+			
+			#button-container > *{
+				margin-left:10px;
+			}
+			
+			#button-container > div{
+				margin-left:10px;
+				padding:5px;
+				display:flex;
+				flex-direction:column;
+				justify-content:center;
+			}
+			
+			#button-container > div > *{
+				margin-bottom:5px;
+			}
+		</style>
+	</head>
+	
+	<body>
+		Type your Functional Dependencies here, line by line.
+		
+		<div id="content">
+			<div>
+				<label>Input:</label>
+				<textarea id="parse-input" rows="30" cols="50">
 R(A,B,C,D):
 A,B->C,D
 B->C
 A->B
 R2(E,F):
 E->F
-</textarea> 
-<textarea  id="stepsList" rows="30" cols="50">
+				</textarea> 
+			</div>
+			<div>
+				<label for="output-textarea">Current Relation Set: </label>
+				<textarea id="output-textarea" rows="30" cols="50" readonly></textarea> 
+			</div>
+			<div>
+				<label for="history-textarea">Operations: </label>
+				<textarea id="history-textarea" rows="30" cols="50" readonly></textarea> 
+			</div>
+		</div>
+		 
+		<br>
+		<div id="button-container">
+			<div>
+				<button id="parse-button" >Parse</button>
+			</div>
+			<div>
+				<button id="canonical-cover-button" >Canonical Cover</button>
+			</div>
+			
+			<div id="implies-container">
+				<h3>Implies:</h3>
+				<div>
+					<label>Dependency: </label>
+					<input type="text" id="implies-input-text"/>
+				</div>
+				<div>
+					<label for="implies-relation-select">Select Relation: </label>
+					<select id="implies-relation-select">
+						<option disabled value="-1">No Relation</option>
+					</select>
+				</div>
+				<button id="implies-button">Implies</button>
+			</div>
+		</div>
+	</body>
 
-</textarea> 
-<textarea id="output" rows="30" cols="50">
-
-</textarea> 
-</div>
- 
-<br>
-<button id="parseButton" >
-	Parse
-</button>
-
-<script src="data.js"></script>
-<script src="rules.js"></script>
-<script src="main.js"></script>
+	<script src="data.js"></script>
+	<script src="rules.js"></script>
+	<script src="main.js"></script>
 </html>

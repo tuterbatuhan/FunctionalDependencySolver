@@ -19,8 +19,16 @@ function Relation(name,attributes,dependencyList)
 	this.attributes = attributes;
 	this.name = name;
 	this.dependencyList = dependencyList;
+	
+	this.toString = function()
+	{
+		var str = "";
+		str+= this.name + "(" + this.attributes.join() + "):\n";
+		
+		this.dependencyList.forEach(function(e){str+=e + "\n";});
+		return str;
+	}
 }
-
 
 
 function parse(text)
@@ -48,6 +56,20 @@ function parse(text)
 		}
 	}
 	return relationList; 
+}
+
+function parseDependency(line)
+{
+	
+	if(line.indexOf("->") != -1)
+	{
+		var dLoc = line.indexOf("-");
+		var left = line.substring(0,dLoc).split(/ *, */);
+		var right = line.substring(dLoc+2).split(/ *, */);
+		return (new Dependency(left,right));
+	}		
+	else
+		return null;
 }
 
 
@@ -216,4 +238,8 @@ Array.prototype.intersection = function(that)
 	});
 	
 	return result;
+}
+
+function cloneArray(arr){
+	return arr.slice();
 }
