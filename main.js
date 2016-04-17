@@ -84,7 +84,6 @@ function init()
 		findCanonicalCovers(RELATIONS);
 		updateRelations();
 		updateHistory(historyArea);
-		writeOutput();
 	}
 	
 	document.getElementById("implies-button").onclick = function()
