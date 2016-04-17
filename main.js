@@ -13,9 +13,9 @@ function findCanonicalCovers(relationList)
 			temp = relationList[i].dependencyList;
 			relationList[i].dependencyList = reduce(relationList[i].dependencyList,innerSec);	
 		}while(!temp.equals(relationList[i].dependencyList));
+		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
 		relationList[i].dependencyList = removeRedundant(relationList[i].dependencyList,innerSec);
-		innerSec.add("\nLast");
-		innerSec.add(relationList[i].dependencyList.join("\n"));
+		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
 	}
 	return null;
 }
