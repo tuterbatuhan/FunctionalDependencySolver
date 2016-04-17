@@ -66,7 +66,7 @@ function reduce(dependencyList,section)
 			{
 				var str = dependency.lhs+"->"+dependency.rhs+" is decomposed into\n";
 				temp.push(new Dependency(reduced.lhs,dependency.rhs));
-				str+="\t"+reduced.lhs+"->"+dependency.rhs+"\t since there is "+reduced.lhs+"->"+reduced.rhs;
+				str+="\t"+reduced.lhs+"->"+dependency.rhs+"\t since there exists "+reduced.lhs+"->"+reduced.rhs;
 				section.add(str);
 			}
 			else
@@ -104,6 +104,42 @@ function helper(dependency,dependencyList)
 	}
 	return null;
 		
+}
+function removeRedundant(dependencyList,section)
+{
+	var redundant = [];
+
+	for (var i=0;i<dependencyList.length;i++)
+	{
+		for (var k=0;k<dependencyList.length;k++)
+		{
+			if(dependencyList[i].rhs.equals(dependencyList[k].lhs))
+			{
+				for (var n=0;n<dependencyList.length;n++)
+					if(dependencyList[n].lhs.equals(dependencyList[i].lhs) && dependencyList[n].rhs.equals(dependencyList[k].rhs))
+					{
+						var str = dependencyList[n]+" is removed since there exists " + dependencyList[i]+" and "+ dependencyList[k];
+						redundant.push(dependencyList[n]);
+						section.add(str);
+					}
+			}	
+		}
+	}
+	if(redundant.length>0)
+	{
+		var temp = [];
+		for (var i=0;i<redundant.length;i++)
+		{
+			for (var k=0;k<dependencyList.length;k++)
+			{
+				if(!dependencyList[k].equals(redundant[i]))
+					temp.push(dependencyList[k]);
+			}
+					
+		}
+		return temp;	
+	}
+	return dependencyList;
 }
 
 //This will have to be converted into a search like ones in Berwick's notes
@@ -194,7 +230,7 @@ function implies(dependencyList,dependency)
 	
 	function transitivity(dep)
 	{
-		//If A->B & B-C then A->C
+		//If A->B & B->C then A->C
 		//Represents 3rd axiom of Armstrong
 		
 		//If there exists a rule such that X->BY and we are checking
