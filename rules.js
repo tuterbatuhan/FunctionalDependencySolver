@@ -48,7 +48,7 @@ function removeDupp(dependencyList,section)
 		{
 			str+= "\n\t"+key2[i];
 		}
-		str+="\tare removed";
+		str+="\tare removed\n";
 		section.add(str);
 	}
 	return result;
@@ -66,7 +66,7 @@ function reduce(dependencyList,section)
 			{
 				var str = dependency.lhs+"->"+dependency.rhs+" is decomposed into\n";
 				temp.push(new Dependency(reduced.lhs,dependency.rhs));
-				str+="\t"+reduced.lhs+"->"+dependency.rhs+"\t since there exists "+reduced.lhs+"->"+reduced.rhs;
+				str+="\t"+reduced.lhs+"->"+dependency.rhs+"\t since there exists "+reduced.lhs+"->"+reduced.rhs+"\n";
 				section.add(str);
 			}
 			else
@@ -108,7 +108,7 @@ function helper(dependency,dependencyList)
 function removeRedundant(dependencyList,section)
 {
 	var redundant = [];
-
+	var str;
 	for (var i=0;i<dependencyList.length;i++)
 	{
 		for (var k=0;k<dependencyList.length;k++)
@@ -118,13 +118,16 @@ function removeRedundant(dependencyList,section)
 				for (var n=0;n<dependencyList.length;n++)
 					if(dependencyList[n].lhs.equals(dependencyList[i].lhs) && dependencyList[n].rhs.equals(dependencyList[k].rhs))
 					{
-						var str = dependencyList[n]+" is removed since there exists " + dependencyList[i]+" and "+ dependencyList[k];
+						str = dependencyList[n]+" is removed since there exists " + dependencyList[i]+" and "+ dependencyList[k]+"\n";
 						redundant.push(dependencyList[n]);
-						section.add(str);
+						
 					}
 			}	
 		}
 	}
+	if(!str)
+		str="Nothing to be done\n";
+	section.add(str);
 	if(redundant.length>0)
 	{
 		var temp = [];
