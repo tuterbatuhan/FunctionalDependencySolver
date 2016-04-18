@@ -145,97 +145,119 @@ function removeRedundant(dependencyList,section)
 	return dependencyList;
 }
 
-//This will have to be converted into a search like ones in Berwick's notes
-//Maybe BFS??
-//Or Maybe rule based system (Now it works like rule based system)
-//That it remembers implies calls
-//Right now it runs like DFS
-function implies(dependencyList,dependency)
-{
-	var visited = {};//Dirty trick to stop cycles
-	
-	// Inner function called recursively to check wheter dep is implied for a
-	// given dependencyList
-	function _implies(dep)
+//Searches functional dependency to check whether dependency exist
+function implies(dependencyList,dependency,historySection)
+{	
+	//Helper function used for representing 1st rule of the armstrong
+	//1st axiom of Armstrong,reflexivity, infers that if Y is a subset of X,
+	//  then X->Y
+	//Returns a struct that contains:
+	//	implies: a  boolean that shows whether dep is implied by reflexivity
+	//	step: a string that explains how we find the implies result.
+	//    step does not return anything when implies is false
+	function _reflexivity(dep)
 	{
-		//If already visited, remember result
-		if (visited[dep.toString()] != undefined)
-			return visited[dep.toString()];
+		if (dep.rhs.isSubset(dep.lhs))//If dep = X->Y check whether Y is a subset of X
+		{
+			
+			if (dep.rhs.equals(dep.lhs))//If X equals Y
+			{
+				return {
+					implies:true,
+					step: dep + " is always true "
+				}
+			}
+			else//Otherwise
+			{
+				return {
+					implies:true,
+					step:  dep + " is always true since "  + dep.lhs + " is subset of " + dep.rhs + " (reflexitivity)"
+				}
+			}
+		}
 		
-		//If not visited mark it to false
-		visited[dep.toString()] = false;
-		
-		var found = false;
-		
-		//Note that this if conditions below can be turned into 1 if statement
-		//if (reflexivity(dep) && contains(dep) &&  augmentation(dep) &&
-		//		transitivity(dep) && decomposition(dep))
-		//These represents base cases or neighbour cases
-		if (!found && reflexivity(dep))
-			found = true;
-		
-		if (!found && contains(dep))
-			found = true;
-		
-		if (!found && augmentation(dep))
-			found = true;
-
-		if (!found && transitivity(dep))
-			found = true;
-		
-		if (!found && decomposition(dep))
-			found = true;
-		
-		visited[dep.toString()] = found;//If found that X->Y then save it
-		
-		return found;
+		return {implies:false};
 	}
 	
-	function reflexivity(dep)
-	{
-		//If B is a subset of A then A->B
-		//Represents 1st axiom of Armstrong
-		
-		return (dep.rhs.isSubset(dep.lhs))//isSubset defined in data.js
-	}
 	
-	function contains(dep)
+	// Contains check whether given dependency,dep, is already in dependency set(dependencyList)
+	//Returns a struct that contains:
+	//	implies: a  boolean that shows whether dep is an element of the dependency set
+	//	step: a string that explains how we find the implies result.
+	//    step does not return anything when implies is false
+	function _contains(dep)
 	{
 		//If dependency X->Y is contained in FD or if FD has dependency like X->YA
-		//then it implies 
+		//then it implies
 		for (var i = 0 ; i < dependencyList.length ; i++)
 			if (dependencyList[i].equals(dep))
-				return true;
+			{
+				return {
+					implies:true,
+					step: dep + " is in the dependency set"
+				};
+			}
 			else if (dependencyList[i].lhs.equals(dep.lhs) &&
 					 dep.rhs.isSubset(dependencyList[i].rhs))
-				return true;
+			{
+				return {
+					implies:true,
+					step: dep + " is in the dependency set. ( decompose :" + dependencyList[i] + ")"
+				};
+			}
 			
-		return false;
+		return  {implies:false};
 	}
 	
-	function augmentation(dep)
+	//Helper function used for representing 2nd axiom of the Armstrong
+	//2nd axiom of Armstrong,augmentation, infers that X->Y then
+	// AX->AY.
+	//
+	// This function looks for valid dependencies that might produce dep by using 
+	//   augmentation rule. If these dependences implies then dep implies.
+	//Returns a struct that contains:
+	//	implies: a  boolean that shows whether dep is implied by augmentation
+	//	step: a string that explains how we find the implies result.
+	//    step does not return anything when implies is false
+	function _augmentation(dep)
 	{
-		//If A -> B then AC -> BC
-		//Represents 2nd axiom of Armstrong
-		
-		// If we have AB -> CB then search for A -> C
-		var common = dep.rhs.intersection(dep.lhs);
-		
-		if (common.length > 0)
+		// If we have AB -> CB then search for AB -> C because
+		// we can produce AB->CB from AB->C by using augmentation rule
+		var common = dep.rhs.intersection(dep.lhs); //Find common characters between lhs and rhs
+		console.log(dep);
+		if (common.length > 0)//If there are common attribbutes
 		{
 			var newRHS = dep.rhs.difference(common);
 			if (newRHS.length > 0  && _implies(new Dependency(dep.lhs,newRHS)))
-				return true;
+			{
+				return {
+					implies:true,
+					step:"We can augment " + new Dependency(dep.lhs,newRHS) +
+						" into " + dep + " (augmentation)"
+				};
+			}
 		}
 		
-		return false;
+		return {implies:false};
 	}
 	
-	function transitivity(dep)
+	//Helper function used for representing 3rd axiom of the Armstrong
+	//3rd axiom of Armstrong,transitivity, infers that X->Y & Y->Z then
+	// X->Z.
+	//
+	// This function looks for valid dependencies that might produce dep by using 
+	//   transitivity rule. If these dependences implies then dep implies.
+	//  
+	// For example, if dep is X->Z and dependency set contains Y->Z
+	//   it checks whether X->Y is true,if it is true then X->Z is also true,
+	//   since X->Y and Y->Z both implies.
+	//
+	//Returns a struct that contains:
+	//	implies: a  boolean that shows whether dep is implied by transtivity
+	//	step: a string that explains how we find the implies result.
+	//    step does not return anything when implies is false
+	function _transitivity(dep)
 	{
-		//If A->B & B->C then A->C
-		//Represents 3rd axiom of Armstrong
-		
 		//If there exists a rule such that X->BY and we are checking
 		//whether A->B? , then check A->X
 		//Because if A->X and X->BY then A->BY. Since we can decompose A->BY
@@ -250,38 +272,124 @@ function implies(dependencyList,dependency)
 				var newDep = new Dependency(newLHS,newRHS); //A->X
 				
 				if (!newDep.equals(dep) && _implies(newDep))
-					return true;
+				{
+					var reason = "";
+					if (dep.rhs.equals(dependencyList[i].rhs))//If we only used transitivity
+						reason = "We found " + newDep +
+								" and in our dependency list we have " + dependencyList[i] +
+								" then " + dep + " (transitivity)";
+					else //If we used transitivity with decomposition
+						reason = "We found " + newDep +
+								" and in our dependency list we have " + dependencyList[i] +
+								" then " + new Dependency(dep.lhs,dependencyList[i].rhs) + " implies "+ 
+								" and we can decompose " + new Dependency(dep.lhs,dependencyList[i].rhs) +
+								" into " + dep + " (transitivity and decomposition)";
+					return {
+							implies:true,
+							step: reason
+						}
+				}
 			}
 		}
 		
-		return false;
+		return {implies:false};
 	}
 	
-	function decomposition(dep)
+	//Helper function used for representing union corollary derived from Armstrong's axioms
+	//Union infers that X->Y & X->Z then X->YZ
+	// 
+	//
+	// This function separates all attributes that is in rhs of the dep and
+	//   it tries to solve them seperately. If they imply seperately then dep also implies.  
+	//
+	// For example, if dep is X->YZ then this function checks for X->Y and X->Z. If they
+	//  both imply in the functional dependency set then X->YZ also implies
+	//
+	//Returns a struct that contains:
+	//	implies: a  boolean that shows whether dep is implied by union
+	//	step: a string that explains how we find the implies result.
+	//    step does not return anything when implies is false
+	function _union(dep)
 	{
-		//If A -> BC then A->B & A->C
-		//Represents decomposition corollary of the Armstrong's axioms
-		//In theory we do not need this since first 3 rules of Armstrong's
-		//axioms can be used to get this rule. But we are using it :P
-		
 		//Can be decomposed X->Y => |Y| > 1??
 		if (dep.rhs.length > 1)
 		{
+			var temp = "";
 			//Can be decomposed
 			//For each decomposition A->BC => A->B , A->C
 			//Check whether are they implies 
 			//If all of them exists (A->B and A->C) then A->BC
 			for (var i = 0 ; i < dep.rhs.length ; i++)
 			{
+				if (i == dep.rhs.length - 1)
+					temp += " and ";
+				else
+					temp += " , " ;
+				temp += new Dependency(dep.lhs,[dep.rhs[i]]).toString();
 				if (!_implies(new Dependency(dep.lhs,[dep.rhs[i]])))
 					return false;//There exists a decomposition that does not implies
+				
 			}
+			temp= temp.substring(temp.indexOf(',') + 1);
 			
-			return true;//Can be decomposed and every decomposition of it implies
+			return {
+				implies:true,
+				step:"Since we have dependencies: " + temp +
+					 " , " + dep + " is also implies. (union)"
+			
+			};//Can be decomposed and every decomposition of it implies
 		}
 		else
-			return false; // Cannot be decomposed
+			return {implies:false}; // Cannot be decomposed
 	}
 	
-	return _implies(dependency);
+	
+	//A map that is used for cycle elimination and to eliminate repetiton
+	var visited = {};
+	
+	//Steps is a list of string that contains explanation of the steps
+	//for finding dependency
+	var steps = [];
+	
+	// Inner function called recursively to check wheter dep is implied for a
+	// given dependencyList
+	function _implies(dep)
+	{
+		//If already visited, remember result
+		if (visited[dep.toString()] != undefined)
+			return visited[dep.toString()];
+		
+		//If not visited mark it to false (We are currently visiting)
+		visited[dep.toString()] = false;
+		
+		//Describes list of operations that will be performed in given order,
+		//(Reduction steps)
+		var operations = [_reflexivity,_contains,_augmentation,_transitivity,_union];
+
+		//Intial result is false
+		var result = {implies:false};
+		
+		//For each operation reduce problem until you find a solution
+		//(Or node)
+		for (var i = 0 ; i < operations.length && !result.implies;i++)
+		{
+			op = operations[i];
+			var result = op(dep);
+		}
+		
+		visited[dep.toString()] = result.implies;//If found that X->Y then save it
+		if (result.implies)
+			steps.push(result.step);
+	
+		return result.implies;
+	}
+	var result = _implies(dependency);
+	
+	if (result && historySection != null)//Write to the history section
+	{
+		steps.forEach(function(el){
+			historySection.add(el);	
+		});
+	}
+	return result;
 }//End of function implies

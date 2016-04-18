@@ -115,10 +115,13 @@ function init()
 		
 		HISTORY = new HistorySection();
 		
-		if (implies(relation.dependencyList,dependency))
-			HISTORY.add("Dependency " + dependency + " implies in " + relation.name);
+		var resultSection = HISTORY.createSection(0);
+		var stepsSection = HISTORY.createSection(1);
+		
+		if (implies(relation.dependencyList,dependency,stepsSection))
+			resultSection.add("Dependency " + dependency + " implies in " + relation.name);
 		else
-			HISTORY.add("Dependency " + dependency + " does not imply in " + relation.name);
+			resultSection.add("Dependency " + dependency + " does not imply in " + relation.name);
 		updateHistory();
 	};
 }

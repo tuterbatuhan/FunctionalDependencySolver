@@ -30,7 +30,7 @@ function Relation(name,attributes,dependencyList)
 	}
 }
 
-
+//TODO:Implement more robust parsing
 function parse(text)
 {
 	var lines = text.split(/ *\n */);
@@ -44,15 +44,14 @@ function parse(text)
 			var pEnd = line.indexOf(")");	//End index of paranthesis
 			var name = line.substring(0,pStart);
 			var attributeList = line.substring(pStart+1,pEnd).split(/ *, */);
+			attributeList = attributeList.map(function(el){return el.match(/\S.*/)[0].match(/.*\S/)});//Remove whitespace
+			
 			relation = new Relation(name,attributeList,[]); //{'name':name,'attr':attributes,'fd':[],"steps":[]};
 			relationList.push(relation);
 		}
 		else if(line.indexOf("->") != -1)//Indicates a dependency [attr1,...]->[attr1,...]
 		{
-			var dLoc = line.indexOf("-");
-			var left = line.substring(0,dLoc).split(/ *, */);
-			var right = line.substring(dLoc+2).split(/ *, */);
-			relation.dependencyList.push(new Dependency(left,right));	
+			relation.dependencyList.push(parseDependency(line));	
 		}
 	}
 	return relationList; 
@@ -65,7 +64,11 @@ function parseDependency(line)
 	{
 		var dLoc = line.indexOf("-");
 		var left = line.substring(0,dLoc).split(/ *, */);
+		left = left.map(function(el){return el.match(/\S.*/)[0].match(/.*\S/)});//Remove whitespace
+		
 		var right = line.substring(dLoc+2).split(/ *, */);
+		right = right.map(function(el){return el.match(/\S.*/)[0].match(/.*\S/)});//Remove whitespace
+		
 		return (new Dependency(left,right));
 	}		
 	else
