@@ -197,8 +197,7 @@ function implies(dependencyList,dependency,historySection)
 			if (dep.rhs.equals(dep.lhs))//If X equals Y
 			{
 				return {
-					implies:true,
-					step: dep + " is always true "
+					implies:true
 				}
 			}
 			else//Otherwise
@@ -292,7 +291,7 @@ function implies(dependencyList,dependency,historySection)
 	//	step: a string that explains how we find the implies result.
 	//    step does not return anything when implies is false
 	function _transitivity(dep)
-	{
+	{	
 		//If there exists a rule such that X->BY and we are checking
 		//whether A->B? , then check A->X
 		//Because if A->X and X->BY then A->BY. Since we can decompose A->BY
@@ -313,8 +312,11 @@ function implies(dependencyList,dependency,historySection)
 						reason = "Since " + newDep + " and " + dependencyList[i] + " implies, "+
 								dep + " is also implies by transitivity";
 					else //If we used transitivity with decomposition
+					{
 						reason = "Since " + newDep + " and " + dependencyList[i] + " implies, "+
 								dep + " is also implies by transitivity";
+						visited[new Dependency(dep.lhs,dependencyList[i].rhs)] = true;
+					}
 					return {
 							implies:true,
 							step: reason
@@ -323,6 +325,53 @@ function implies(dependencyList,dependency,historySection)
 			}
 		}
 		
+		//CD->B? && {A->C} in FD => ask for AD->B
+		for (var i = 0 ; i < dependencyList.length ; i++)
+		{
+			if (dependencyList[i].rhs.isSubset(dep.lhs))
+			{
+				var diff = dep.lhs.difference(dependencyList[i].rhs);//D
+				
+				var newLHS = dependencyList[i].rhs.union(diff); //AD
+				var newRHS = dep.rhs; //B
+				var newDep = new Dependency(newLHS,newRHS);
+				
+				if (!newDep.equals(dep) && _implies(newDep))
+				{
+					var reason = "";
+					reason = "Since " + newDep + " and " + dependencyList[i] + " implies, "+
+							dep + " is also implies by transitivity f";
+					return {
+							implies:true,
+							step: reason
+						}
+				}
+			}
+		}
+		
+		//AB->CD? && {B->E} in FD => ask for AE->CD
+		for (var i = 0 ; i < dependencyList.length ; i++)
+		{
+			if (dependencyList[i].lhs.isSubset(dep.lhs))
+			{
+				var diff = dep.lhs.difference(dependencyList[i].lhs);//A
+				
+				var newLHS = dependencyList[i].rhs.union(diff); //AE
+				var newRHS = dep.rhs; //CD
+				var newDep = new Dependency(newLHS,newRHS);
+				
+				if (!newDep.equals(dep) && _implies(newDep))
+				{
+					var reason = "";
+					reason = "Since " + dependencyList[i] + " and " + newDep + " implies, "+
+							dep + " is also implies by transitivity";
+					return {
+							implies:true,
+							step: reason
+						}
+				}
+			}
+		}
 		return {implies:false};
 	}
 	
@@ -342,10 +391,12 @@ function implies(dependencyList,dependency,historySection)
 	//    step does not return anything when implies is false
 	function _union(dep)
 	{
+		var _steps = steps.map(function(e){return e;});
 		//Can be decomposed X->Y => |Y| > 1??
 		if (dep.rhs.length > 1)
 		{
 			var temp = "";
+			var hs = new HistorySection();
 			//Can be decomposed
 			//For each decomposition A->BC => A->B , A->C
 			//Check whether are they implies 
@@ -357,15 +408,20 @@ function implies(dependencyList,dependency,historySection)
 				else
 					temp += " , " ;
 				temp += new Dependency(dep.lhs,[dep.rhs[i]]).toString();
-				if (!_implies(new Dependency(dep.lhs,[dep.rhs[i]])))
-					return false;//There exists a decomposition that does not implies
 				
+				if (!_implies(new Dependency(dep.lhs,[dep.rhs[i]])))
+				{
+					steps = _steps;
+					return {implies:false};//There exists a decomposition that does not implies
+				}
 			}
-			temp= temp.substring(temp.indexOf(',') + 1);
 			
+			temp= temp.substring(temp.indexOf(',') + 1);
+			var _steps = hs.historyList;
+			_steps.push("If we take union of dependencies" + temp + " we get " + dep);
 			return {
 				implies:true,
-				step: "If we take union of dependencies" + temp + " we get " + dep
+				step: _steps
 			
 			};//Can be decomposed and every decomposition of it implies
 		}
@@ -384,7 +440,8 @@ function implies(dependencyList,dependency,historySection)
 	// Inner function called recursively to check wheter dep is implied for a
 	// given dependencyList
 	function _implies(dep)
-	{
+	{	
+		var _steps = [];
 		//If already visited, remember result
 		if (visited[dep.toString()] != undefined)
 			return visited[dep.toString()];
@@ -394,7 +451,7 @@ function implies(dependencyList,dependency,historySection)
 		
 		//Describes list of operations that will be performed in given order,
 		//(Reduction steps)
-		var operations = [_reflexivity,_contains,_augmentation,_transitivity,_union];
+		var operations = [_contains,_reflexivity,_transitivity,_augmentation,_union];
 
 		//Intial result is false
 		var result = {implies:false};
@@ -405,12 +462,21 @@ function implies(dependencyList,dependency,historySection)
 		{
 			op = operations[i];
 			var result = op(dep);
+			if (result.implies == undefined)
+				console.log(op.toString());
 		}
 		
+		
+		
 		visited[dep.toString()] = result.implies;//If found that X->Y then save it
-		if (result.implies)
-			steps.push(result.step);
-	
+		if (result.implies && result.step != undefined)
+		{
+			if (Array.isArray(result.step))
+				steps = steps.concat(result.step);
+			else
+				steps.push(result.step);
+		}
+		
 		return result.implies;
 	}
 	
@@ -426,8 +492,15 @@ function implies(dependencyList,dependency,historySection)
 	}
 	var result = _implies(dependency);
 	
-	if (result !=closure_result)//Correction check
+	if (result != closure_result)//Correction check
 	{
+		console.log("Implies Error:");
+		console.log("List : " + dependencyList.join('\n'));
+		console.log("Asked : " + dependency);
+		console.log("Closure : " + closure_result);
+		console.log("Implies : " + result);
+		
+		console.log(steps.join('\n'));
 		return closure_result;//Return the correct one
 	}
 	

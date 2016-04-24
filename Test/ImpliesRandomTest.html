@@ -35,7 +35,7 @@
 	{
 		var a = c_implies(dependencyList,dependency);
 		
-		var b = implies(dependencyList,dependency);
+		var b = implies(dependencyList,dependency,new HistorySection());
 		
 		return a == b;
 	}
@@ -84,6 +84,9 @@
 		lhs = getRandom(characters,lhsSize);
 		rhs = getRandom(characters,rhsSize);
 		
+		var i = lhs.intersection(rhs);
+		if (i.length != 0)
+			return getRandomDependency(characters,dependencyCharacterSize);
 		return new Dependency(lhs,rhs);
 	}
 	
