@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<meta charset="UTF-8"> 
+<html>
+	<head>
+		<style>
+			textarea{
+				width: 100%;
+				-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+				-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+				box-sizing: border-box;  
+				resize: none;		
+			}
+			#content{
+				display:flex;
+				justify-content:space-around;
+				align-items:stretch;
+				
+			}
+			#content > div{
+				display:flex;
+				flex-direction:column;
+				align-items:center;
+				justify-content: stretch;
+				width:33%
+			}
+			#button-container{
+				border:ridge;
+				display:flex;
+				justify-content:center;
+				align-items:flex-start;
+			}
+			
+			
+			#button-container > *{
+				margin-left:10px;
+			}
+			
+			#button-container > div{
+				margin-left:10px;
+				padding:5px;
+				display:flex;
+				flex-direction:column;
+				justify-content:center;
+			}
+			
+			#button-container > div > *{
+				margin-bottom:5px;
+			}
+		</style>
+	</head>
+	
+	<body>
+		Type your Functional Dependencies here, line by line.
+		
+		<div id="content">
+			<div>
+				<label>Input:</label>
+				<textarea id="parse-input" cols="50" rows="30">
+SUPPLIERS(SUPPLIER_ID,SUPPLIER_NAME,CITY,COUNTRY):
+SUPPLIER_ID->SUPPLIER_NAME,CITY,COUNTRY
+CITY->COUNTRY
+
+PRODUCTS(PRODUCT_ID,PRODUCT_NAME,SUPPLIER_ID,PRICE):
+PRODUCT_ID->PRODUCT_NAME
+PRODUCT_ID->SUPPLIER_ID
+PRODUCT_ID->PRICE
+</textarea> 
+			</div>
+			<div>
+				<label for="output-textarea">Current Relation Set: </label>
+				<textarea id="output-textarea" cols="50" rows="30"  readonly></textarea> 
+			</div>
+			<div>
+				<label for="history-textarea">Operations: </label>
+				<textarea id="history-textarea" cols="50" rows="30" readonly></textarea> 
+			</div>
+		</div>
+		 
+		<br>
+		<div id="button-container">
+			<div>
+				<h3>Operations:</h3>
+				<button id="parse-button" >Parse</button>
+				<button id="canonical-cover-button" >Canonical Cover</button>
+			</div>
+			
+			<div id="implies-container">
+				<h3>Implies:</h3>
+				<div>
+					<label>Dependency: </label>
+					<input type="text" id="implies-input-text"/>
+				</div>
+				<div>
+					<label for="implies-relation-select">Select Relation: </label>
+					<select id="implies-relation-select">
+						<option disabled value="-1">No Relation</option>
+					</select>
+				</div>
+				<button id="implies-button">Implies</button>
+			</div>
+		</div>
+	</body>
+
+	<script src="../data.js"></script>
+	<script src="../rules.js"></script>
+	<script src="../main.js"></script>
+</html>

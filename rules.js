@@ -148,6 +148,40 @@ function removeRedundant(dependencyList,section)
 //Searches functional dependency to check whether dependency exist
 function implies(dependencyList,dependency,historySection)
 {	
+	/*
+	 * Correct but 'stupid' implementation of implies
+	 * This is used to make sure that implies is correct
+	 * This is also used in 'silent' implies calls
+	 *   'Silent' implies calls are function calls that does not 
+	 *	 need the steps of the implies (When history section is not given)
+	 *   Since _closure_implies is faster, it will be used instead.
+	 */
+	function _closure_implies(dep)
+	{
+		var closure = [].concat(dep.lhs);
+		var dl = [].concat(dependencyList);
+		var changed = true;
+		
+		//Repeat until no new item added to the closure added
+		while (changed)
+		{
+			changed = false;
+			
+			for (var i = 0; i< dl.length; i++)
+			{
+				//If A->B and closure = {A} 
+				//and B is not an element of closure set(to stop cycles)
+				if (dl[i].lhs.isSubset(closure) 
+					&& !dl[i].rhs.isSubset(closure))
+				{
+					closure = closure.union(dl[i].rhs);
+					changed = true;
+				}
+			}
+		}
+		return dep.rhs.isSubset(closure);
+	}
+
 	//Helper function used for representing 1st rule of the armstrong
 	//1st axiom of Armstrong,reflexivity, infers that if Y is a subset of X,
 	//  then X->Y
@@ -194,7 +228,7 @@ function implies(dependencyList,dependency,historySection)
 			{
 				return {
 					implies:true,
-					step: dep + " is in the dependency set"
+					step: "We take " + dep + " from the dependency set"
 				};
 			}
 			else if (dependencyList[i].lhs.equals(dep.lhs) &&
@@ -202,7 +236,8 @@ function implies(dependencyList,dependency,historySection)
 			{
 				return {
 					implies:true,
-					step: dep + " is in the dependency set. ( decompose :" + dependencyList[i] + ")"
+					step: "We get " + dep + " by decomposing " + dependencyList[i] +
+						" dependency." 
 				};
 			}
 			
@@ -224,7 +259,7 @@ function implies(dependencyList,dependency,historySection)
 		// If we have AB -> CB then search for AB -> C because
 		// we can produce AB->CB from AB->C by using augmentation rule
 		var common = dep.rhs.intersection(dep.lhs); //Find common characters between lhs and rhs
-		console.log(dep);
+		
 		if (common.length > 0)//If there are common attribbutes
 		{
 			var newRHS = dep.rhs.difference(common);
@@ -233,7 +268,7 @@ function implies(dependencyList,dependency,historySection)
 				return {
 					implies:true,
 					step:"We can augment " + new Dependency(dep.lhs,newRHS) +
-						" into " + dep + " (augmentation)"
+						" into " + dep
 				};
 			}
 		}
@@ -275,15 +310,11 @@ function implies(dependencyList,dependency,historySection)
 				{
 					var reason = "";
 					if (dep.rhs.equals(dependencyList[i].rhs))//If we only used transitivity
-						reason = "We found " + newDep +
-								" and in our dependency list we have " + dependencyList[i] +
-								" then " + dep + " (transitivity)";
+						reason = "Since " + newDep + " and " + dependencyList[i] + " implies, "+
+								dep + " is also implies by transitivity";
 					else //If we used transitivity with decomposition
-						reason = "We found " + newDep +
-								" and in our dependency list we have " + dependencyList[i] +
-								" then " + new Dependency(dep.lhs,dependencyList[i].rhs) + " implies "+ 
-								" and we can decompose " + new Dependency(dep.lhs,dependencyList[i].rhs) +
-								" into " + dep + " (transitivity and decomposition)";
+						reason = "Since " + newDep + " and " + dependencyList[i] + " implies, "+
+								dep + " is also implies by transitivity";
 					return {
 							implies:true,
 							step: reason
@@ -334,8 +365,7 @@ function implies(dependencyList,dependency,historySection)
 			
 			return {
 				implies:true,
-				step:"Since we have dependencies: " + temp +
-					 " , " + dep + " is also implies. (union)"
+				step: "If we take union of dependencies" + temp + " we get " + dep
 			
 			};//Can be decomposed and every decomposition of it implies
 		}
@@ -383,9 +413,25 @@ function implies(dependencyList,dependency,historySection)
 	
 		return result.implies;
 	}
+	
+	var closure_result = _closure_implies(dependency);
+	if (historySection == null || historySection == undefined)
+	{
+		return closure_result;
+	}
+	
+	if (!closure_result)
+	{
+		return false;//When implies returns false, it does not add why it is false
+	}
 	var result = _implies(dependency);
 	
-	if (result && historySection != null)//Write to the history section
+	if (result !=closure_result)//Correction check
+	{
+		return closure_result;//Return the correct one
+	}
+	
+	if (result)//Write to the history section
 	{
 		steps.forEach(function(el){
 			historySection.add(el);	
