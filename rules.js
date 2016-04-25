@@ -325,30 +325,6 @@ function implies(dependencyList,dependency,historySection)
 			}
 		}
 		
-		//CD->B? && {A->C} in FD => ask for AD->B
-		for (var i = 0 ; i < dependencyList.length ; i++)
-		{
-			if (dependencyList[i].rhs.isSubset(dep.lhs))
-			{
-				var diff = dep.lhs.difference(dependencyList[i].rhs);//D
-				
-				var newLHS = dependencyList[i].rhs.union(diff); //AD
-				var newRHS = dep.rhs; //B
-				var newDep = new Dependency(newLHS,newRHS);
-				
-				if (!newDep.equals(dep) && _implies(newDep))
-				{
-					var reason = "";
-					reason = "Since " + newDep + " and " + dependencyList[i] + " implies, "+
-							dep + " is also implies by transitivity f";
-					return {
-							implies:true,
-							step: reason
-						}
-				}
-			}
-		}
-		
 		//AB->CD? && {B->E} in FD => ask for AE->CD
 		for (var i = 0 ; i < dependencyList.length ; i++)
 		{
@@ -363,8 +339,8 @@ function implies(dependencyList,dependency,historySection)
 				if (!newDep.equals(dep) && _implies(newDep))
 				{
 					var reason = "";
-					reason = "Since " + dependencyList[i] + " and " + newDep + " implies, "+
-							dep + " is also implies by transitivity";
+					reason = "We know " + newDep + " and " + dependencyList[i] +
+							" is implied in FD then " + dep + " is also implied in FD by transitivity"
 					return {
 							implies:true,
 							step: reason
