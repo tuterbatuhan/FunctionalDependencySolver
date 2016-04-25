@@ -451,7 +451,7 @@ function implies(dependencyList,dependency,historySection)
 		
 		//Describes list of operations that will be performed in given order,
 		//(Reduction steps)
-		var operations = [_contains,_reflexivity,_transitivity,_augmentation,_union];
+		var operations = [_contains,_reflexivity,_augmentation,_union,_transitivity];
 
 		//Intial result is false
 		var result = {implies:false};
