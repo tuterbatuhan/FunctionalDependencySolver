@@ -1,3 +1,11 @@
+/*********************************************************************************
+* data.js
+*  Represents common data structures and operations that will be used in different
+*	parts of the functional dependency and normalization solver implementation 
+*
+*
+**********************************************************************************/
+
 function Dependency(lhs,rhs)
 {
 	this.lhs = lhs.sort();

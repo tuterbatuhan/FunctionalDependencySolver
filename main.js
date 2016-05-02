@@ -1,26 +1,12 @@
-function findCanonicalCovers(relationList)
-{
-	var can;
-	for(var i=0;i<relationList.length;i++)
-	{
-		var sec = HISTORY.createSection(0);
-		sec.add("For Relation: "+relationList[i].name);
-		var innerSec = sec.createSection(1);
-		relationList[i].dependencyList = decompositionRule(relationList[i].dependencyList,innerSec);
-		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
-		var temp=[];
-		do{
-			temp = relationList[i].dependencyList;
-			relationList[i].dependencyList = reduce(relationList[i].dependencyList,innerSec);	
-		}while(!temp.equals(relationList[i].dependencyList));
-		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
-		relationList[i].dependencyList = removeRedundant(relationList[i].dependencyList,innerSec);
-		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
-	}
-	return null;
-}
+/************************************************************************
+ *
+ * main.js
+ *  Implements UI specifications of the project
+ *		functional dependency solver
+ *
+ *
+ ************************************************************************/
 
- 
 var RELATIONS = null;//Global variable for storing parsed relation set
 
 
@@ -81,7 +67,7 @@ function init()
 		
 		HISTORY = new HistorySection();
 		
-		findCanonicalCovers(RELATIONS);
+		canonicalCover(RELATIONS);
 		updateRelations();
 		updateHistory(historyArea);
 	}
