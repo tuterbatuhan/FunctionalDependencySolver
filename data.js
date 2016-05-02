@@ -83,7 +83,7 @@ function parseDependency(line)
 		return null;
 }
 
-
+//History keeps tract of the steps for the Canonical Cover and Implies function
 var HISTORY = new HistorySection();
 function HistorySection()
 {
