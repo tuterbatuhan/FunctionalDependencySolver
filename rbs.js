@@ -5,7 +5,7 @@
 * Only forward propagation supported
 *
 * Example Usage and Input formats
-*	Rules:
+*	A Rule:
 *		In order create a RBS instance, a list of rules must be defined first.
 *		A rule is an object (JSON Object) that has the following properties:
 *		-name:String that defines name of the rule. RBS does not requires name of the rules
@@ -20,7 +20,7 @@
 *
 * 	RBS:
 *		Example rbs code:
-*			var rbs = new RBS(rules);			//Creates a rbs instance with given rules
+*			var rbs = new RBS(Rule Set);			//Creates a rbs instance with given rules
 *			var workingSet = new WorkingSet();  //A new working set must be created before
 *												//forward propagaton
 *			var section = workingSet.createSection('MainSection'); //Creates a section in ws
@@ -29,7 +29,7 @@
 *			section.addItem('Has white stripes');
 *			section.addItem('Carnivore');
 *			
-*			rbs.forward();//Forward propagation
+*			rbs.forward(workingSet);//Forward propagation
 *			var items = section.toList();//Returns list of items of the section
 *
 *************************************************************/
@@ -158,8 +158,8 @@ function WorkingSetSection(workingSet,name)
 	this.toList = function()
 	{
 		return Object.keys(data)
-						.map(function(e){return data[e]})
-						.filter(function(e){return e!=undefined});
+			.map(function(e){return data[e]})
+			.filter(function(e){return e!=undefined});
 	}
 	
 	this.toString = function()
