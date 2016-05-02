@@ -37,7 +37,7 @@ function canonicalCover(relationList)
 	
 	
 }
-
+//Hardcoded Canonical Cover Function with Problem Reduction
 function findCanonicalCovers(relationList)
 {
 	var can;
@@ -46,20 +46,20 @@ function findCanonicalCovers(relationList)
 		var sec = HISTORY.createSection(0);
 		sec.add("For Relation: "+relationList[i].name);
 		var innerSec = sec.createSection(1);
-		relationList[i].dependencyList = decompositionRule(relationList[i].dependencyList,innerSec);
-		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
+		relationList[i].dependencyList = decompositionRule(relationList[i].dependencyList,innerSec);//Apply decomposition rule
+		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);//Remove dupplicates
 		var temp=[];
 		do{
 			temp = relationList[i].dependencyList;
-			relationList[i].dependencyList = reduce(relationList[i].dependencyList,innerSec);	
+			relationList[i].dependencyList = reduce(relationList[i].dependencyList,innerSec);//Apply reduction until nothing changes	
 		}while(!temp.equals(relationList[i].dependencyList));
-		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
-		relationList[i].dependencyList = removeRedundant(relationList[i].dependencyList,innerSec);
-		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);
+		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);//Remove Dupplicates
+		relationList[i].dependencyList = removeRedundant(relationList[i].dependencyList,innerSec);//Redundant Removal
+		relationList[i].dependencyList = removeDupp(relationList[i].dependencyList,innerSec);//Remove Dupplicates
 	}
 	return null;
 }
-
+//First rule for Problem Reduction 
 function decompositionRule(dependencyList,section)
 {	
 	var temp =[];
@@ -83,6 +83,7 @@ function decompositionRule(dependencyList,section)
 	}
 	return temp;
 }
+//Dupplicate check for Problem Reduction 
 function removeDupp(dependencyList,section)
 {
 	var uniqueItems = {};
@@ -101,7 +102,6 @@ function removeDupp(dependencyList,section)
 	for (var i = 0 ; i < keys.length ; i++)
 		result.push(uniqueItems[keys[i]]);
 		
-		
 	var key2 = Object.keys(dupplicates);
 	if(key2.length!=0)
 	{
@@ -115,16 +115,17 @@ function removeDupp(dependencyList,section)
 	}
 	return result;
 }
+//Second rule for Problem Reduction 
 function reduce(dependencyList,section)
 {
 	var temp=[];
 	for (var i=0;i<dependencyList.length;i++)
 	{
 		var dependency = dependencyList[i];	
-		if(dependency.lhs.length!=1)
+		if(dependency.lhs.length!=1)//When lhs of dependency can be reduced
 		{
 			var reduced = helper(dependency,dependencyList);
-			if(reduced!=null)
+			if(reduced!=null)//If lhs is reduced
 			{
 				var str = dependency.lhs+"->"+dependency.rhs+" is decomposed into\n";
 				temp.push(new Dependency(reduced.lhs,dependency.rhs));
@@ -141,9 +142,9 @@ function reduce(dependencyList,section)
 			temp.push(dependency);
 		}
 	}
-	
 	return temp;
 }
+//A Helper function for second rule. Returns list of elements from the lhs of a dependency
 function helper(dependency,dependencyList)
 {
 	for (var k=0;k<dependency.lhs.length;k++)
@@ -165,8 +166,8 @@ function helper(dependency,dependencyList)
 		}
 	}
 	return null;
-		
 }
+//Third rule for Problem Reduction
 function removeRedundant(dependencyList,section)
 {
 	var redundant = [];
